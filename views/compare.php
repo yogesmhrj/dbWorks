@@ -1,36 +1,6 @@
 <?php
 
 include __DIR__."/layouts/header.php"; ?>
-<style type="text/css">
-	
-	body{
-		font-size: 13px;
-	}
-
-	.col{
-		overflow: hidden;
-		word-wrap: break-word;
-	}
-
-	.log{
-		width: 35% !important;
-	}
-
-	.window{
-		padding: 15px 15px 10px;
-	}
-
-	.ddl-window {
-		padding: 15px 15px 10px;
-		background-color: #FFF8DC !important;
-		border: 1px solid #E0DCBF !important;
-	}
-
-	.compare-header {
-		padding: 15px 0px;
-	}
-
-</style>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="compare-header">

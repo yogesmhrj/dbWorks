@@ -57,6 +57,7 @@ foreach ($firstTables as $tableName => $columns) {
 	else{
 		//check if the second database has the table
 		if(array_key_exists($tableName,$secondTables)){
+
 			$secondTableColumns = $secondTables[$tableName];
 			foreach ($columns as $columnName => $value) {
 				if(array_key_exists($columnName,$secondTableColumns)){
@@ -75,6 +76,11 @@ foreach ($firstTables as $tableName => $columns) {
 					$tableDifferences[$tableName]['descp'] = "Altered table";
 				}
 			}
+
+			if(array_key_exists($tableName,$tableDifferences)){
+				$tableDifferences[$tableName]['ddl'] = createAlterDDL($tableName,$tableDifferences[$tableName]);		
+			}
+
 		}else{
 			//table doesn't exist
 			$tableDifferences[$tableName] = $columns; 	
@@ -94,3 +100,47 @@ if(count($tableDifferences) > 0){
 
 
 include __DIR__."/../views/compare.php";
+
+
+function createAlterDDL($tableName, $columns, $requireDrop = false){
+
+	$dropQuery  = "ALTER TABLE `$tableName` \n";
+	$alterQuery = "ALTER TABLE `$tableName` \n";
+
+	foreach ($columns as $key => $value) {
+
+		if(is_array($value)){
+
+			$default = " DEFAULT NULL ";
+
+			if(strpos($value[1],"int") > -1){
+				$default = "DEFAULT 0 ";
+			}else if(strpos($value[1],"var") > -1){
+				$default = "DEFAULT '' ";
+			}else if(strpos($value[1],"dou") > -1){
+				$default = "DEFAULT 0 ";
+			}
+
+			$modifier = " ADD COLUMN ";
+
+			if(is_array($value)){
+				if(array_key_exists('decsp',$value)){
+					if($value['decsp'] == 'New'){
+						$dropQuery .= " DROP COLUMN `".$value[0]."` ,\n";
+						$modifier = " ADD COLUMN ";
+
+					}else{
+						$modifier = " MODIFY COLUMN ";
+					}
+				}
+			}
+
+			$alterQuery .= $modifier." `".$value[0]."` ".$value[1]." ".$default.",\n";
+		}
+	}
+
+	$dropQuery = trim(rtrim(trim($dropQuery),",\n").";");
+	$alterQuery = trim(rtrim(trim($alterQuery),",\n").";");
+
+	return $requireDrop?$dropQuery."\n".$alterQuery:$alterQuery;
+}

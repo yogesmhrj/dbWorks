@@ -16,6 +16,8 @@ class DbOpenHelper {
 	private $schemaResource = null;
 	private $columns = null;
 
+	private $error = "";
+
 
 	public function __construct(){
 
@@ -41,6 +43,10 @@ class DbOpenHelper {
 	public function setName($name){
 		$this->dbName = $name;
 		return $this;
+	}
+
+	public function getError(){
+		return $this->error;
 	}
 
 	public function connect(){
@@ -88,6 +94,20 @@ class DbOpenHelper {
 		$resource = mysqli_query($this->connection,$sql);
 
 		return mysqli_fetch_all($resource,MYSQLI_ASSOC)[0]['Create Table'];
+	}
 
+
+	public function executeQueries(array $queries){
+		$this->error = "";	
+		if($this->connection != null){
+			foreach ($queries as $key => $value) {
+				$result = mysqli_query($this->connection,$value);
+				if(!$result){
+					$this->error = mysqli_error($this->connection)."\n".nl2br($value);
+					return false;
+				}
+				return true;
+			}
+		}
 	}
 }
