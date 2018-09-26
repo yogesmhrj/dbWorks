@@ -57,6 +57,10 @@ class DbOpenHelper {
 		$this->connection = mysqli_connect($this->dbHost,$this->dbUser,$this->dbPass,$this->dbName);
 	}
 
+	public function getConnection(){
+		return $this->connection;
+	}
+
 	public function getTableSchema($dbName = ""){
 		if($dbName == ""){
 			$dbName = $this->dbName;
@@ -100,14 +104,44 @@ class DbOpenHelper {
 	public function executeQueries(array $queries){
 		$this->error = "";	
 		if($this->connection != null){
+			
 			foreach ($queries as $key => $value) {
 				$result = mysqli_query($this->connection,$value);
 				if(!$result){
 					$this->error = mysqli_error($this->connection)."\n".nl2br($value);
 					return false;
 				}
-				return true;
 			}
+
+			return true;
+		}
+	}
+
+	public function executeQuery($query){
+		if($this->connection != null){
+				$result = mysqli_query($this->connection,$query);
+				if(!$result){
+					$this->error = mysqli_error($this->connection)."\n".nl2br($query);
+					return false;
+				}else{
+					return mysqli_fetch_all($result,MYSQLI_ASSOC);
+				}
+		}else{
+			return false;
+		}
+	}
+
+	public function insert($value){
+		if($this->connection != null){
+				$result = mysqli_query($this->connection,$value);
+				if(!$result){
+					$this->error = mysqli_error($this->connection)."\n".nl2br($value);
+					return false;
+				}else{
+					return mysqli_insert_id($this->connection);
+				}
+		}else{
+			return false;
 		}
 	}
 }

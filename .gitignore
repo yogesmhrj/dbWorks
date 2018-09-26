@@ -1,2 +1,6 @@
 views/migrate.php
 controller/migrate.php
+/migrator
+/data
+
+.idea/
